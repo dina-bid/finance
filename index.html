@@ -4,266 +4,359 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ניהול תקציב חודשי</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300..700&family=Inter:wght@300..700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#f4f6f9;
-    --card:#ffffff;
-    --border:#e2e6ec;
-    --text:#1f2937;
-    --muted:#6b7280;
-    --income:#16a34a;
-    --fixed:#2563eb;
-    --special:#d97706;
-    --saving:#7c3aed;
-    --danger:#dc2626;
-    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    /* Mercury palette */
+    --canvas:#171721;
+    --card:#1e1e2a;
+    --surface:#272735;
+    --slate:#70707d;
+    --mist:#e2e3ed;
+    --ash:#c3c3cc;
+    --ivory:#ededf3;
+    --cobalt:#5266eb;
+    --white:#ffffff;
+
+    /* muted semantic accents, used sparingly */
+    --good:#7cc4a0;
+    --warn:#d9b26a;
+    --bad:#e07a7a;
+
+    --hairline:rgba(226,227,237,0.08);
+    --font:"Inter","Heebo",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   }
   *{box-sizing:border-box;}
+  html{color-scheme:dark;}
   body{
     margin:0;
-    font-family:"Segoe UI","Assistant",Arial,sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    padding:24px;
+    font-family:var(--font);
+    font-weight:400;
+    font-size:16px;
+    line-height:1.5;
+    background:var(--canvas);
+    color:var(--ivory);
+    -webkit-font-smoothing:antialiased;
   }
-  h1{font-size:22px;margin:0 0 4px;}
-  .subtitle{color:var(--muted);font-size:13px;margin-bottom:20px;}
+  .page{max-width:1200px;margin:0 auto;padding:56px 24px 40px;}
 
-  .topbar{
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    gap:10px;
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:14px 16px;
-    box-shadow:var(--shadow);
-    margin-bottom:18px;
+  /* ---------- Header ---------- */
+  .eyebrow{font-size:12px;letter-spacing:0.12px;color:var(--ash);font-weight:480;margin-bottom:12px;}
+  h1{
+    font-size:42px;line-height:1.15;letter-spacing:0.42px;
+    font-weight:480;margin:0 0 12px;
   }
-  .topbar label{font-size:13px;color:var(--muted);}
-  .topbar select, .topbar input[type=month]{
-    padding:7px 10px;
-    border-radius:8px;
-    border:1px solid var(--border);
-    font-size:14px;
-    background:#fff;
+  .subtitle{color:var(--ash);font-size:16px;margin-bottom:40px;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky;top:12px;z-index:10;
+    display:flex;flex-wrap:wrap;align-items:center;gap:12px;
+    background:rgba(30,30,42,0.82);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-radius:40px;
+    padding:10px 12px 10px 12px;
+    margin-bottom:24px;
+  }
+  .topbar label{font-size:14px;color:var(--ash);padding-inline-start:8px;}
+  .topbar select{
+    appearance:none;-webkit-appearance:none;
+    padding:9px 20px;
+    border-radius:32px;
+    border:1px solid var(--hairline);
+    background:var(--surface);
+    color:var(--ivory);
+    font-family:inherit;font-size:14px;font-weight:420;
+    min-width:150px;cursor:pointer;
   }
   .spacer{flex:1;}
+
   button{
     cursor:pointer;
-    border:none;
-    border-radius:8px;
-    padding:8px 14px;
-    font-size:13px;
-    font-weight:600;
-    transition:opacity .15s;
+    font-family:inherit;
+    font-size:14px;font-weight:400;letter-spacing:0.07px;
+    border-radius:32px;
+    padding:9px 20px;
+    border:1px solid transparent;
+    background:transparent;color:var(--ivory);
+    transition:background .15s, border-color .15s, color .15s;
   }
-  button:hover{opacity:.85;}
-  button.primary{background:var(--fixed);color:#fff;}
-  button.ghost{background:#eef1f6;color:var(--text);}
-  button.danger{background:#fde8e8;color:var(--danger);}
-  button.small{padding:4px 8px;font-size:12px;border-radius:6px;}
+  button.ghost{border-color:rgba(237,237,243,0.55);}
+  button.ghost:hover{border-color:var(--ivory);background:rgba(237,237,243,0.06);}
+  button.quiet{background:var(--surface);}
+  button.quiet:hover{background:#30303f;}
+  button.primary{background:var(--cobalt);color:var(--white);}
+  button.primary:hover{background:#6375ee;}
+  button.danger-text{color:var(--ash);}
+  button.danger-text:hover{color:var(--bad);}
 
-  .tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
-  .tab{
-    padding:9px 16px;
-    border-radius:9px;
-    background:var(--card);
-    border:1px solid var(--border);
-    color:var(--muted);
-    font-weight:600;
-    font-size:13.5px;
-    cursor:pointer;
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex;gap:4px;flex-wrap:wrap;
+    margin-bottom:32px;
   }
-  .tab.active{background:var(--fixed);color:#fff;border-color:var(--fixed);}
+  .tab{
+    padding:10px 20px;
+    border-radius:40px;
+    color:var(--ash);
+    font-size:16px;font-weight:400;
+    cursor:pointer;user-select:none;
+    transition:background .15s,color .15s;
+  }
+  .tab:hover{color:var(--ivory);background:var(--card);}
+  .tab.active{background:var(--cobalt);color:var(--white);}
 
   .panel{display:none;}
   .panel.active{display:block;}
 
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+  .panel-head h2{font-size:28px;line-height:1.2;letter-spacing:0.42px;font-weight:480;margin:0;}
+  .panel-head p{margin:0;color:var(--ash);font-size:14px;}
+
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px;}
+
+  /* ---------- Cards ---------- */
   .card{
     background:var(--card);
-    border:1px solid var(--border);
     border-radius:12px;
-    padding:18px 20px;
-    box-shadow:var(--shadow);
-    margin-bottom:16px;
+    padding:32px;
+    margin-bottom:12px;
   }
-  .card h2{font-size:15px;margin:0 0 14px;display:flex;align-items:center;gap:8px;}
-  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .card h3{
+    font-size:21px;line-height:1.35;font-weight:480;
+    margin:0 0 16px;
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  .tag{
+    font-size:12px;letter-spacing:0.12px;font-weight:420;line-height:1;
+    padding:6px 12px;border-radius:40px;
+    border:1px solid rgba(237,237,243,0.35);color:var(--ash);
+  }
+  .tag.dynamic{border-color:rgba(82,102,235,0.6);color:#aab4f6;}
 
   .row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:6px 0;
-    border-bottom:1px solid #f1f3f7;
+    display:flex;align-items:center;gap:12px;
+    padding:8px 0;
+    border-bottom:1px solid var(--hairline);
   }
-  .row:last-of-type{border-bottom:none;}
+  .row:last-child{border-bottom:none;}
   .row input[type=text]{
-    flex:1;
+    flex:1;min-width:0;
     border:1px solid transparent;
     background:transparent;
-    padding:6px 8px;
-    border-radius:6px;
-    font-size:14px;
+    color:var(--ivory);
+    padding:9px 16px;
+    border-radius:32px;
+    font-family:inherit;font-size:16px;
   }
-  .row input[type=text]:hover, .row input[type=text]:focus{
-    border-color:var(--border);
-    background:#fafbfc;
-  }
+  .row input[type=text]:hover{border-color:var(--hairline);}
+  .row input[type=text]:focus{outline:none;border-color:rgba(237,237,243,0.4);}
   .row input[type=number]{
-    width:120px;
-    padding:6px 8px;
-    border:1px solid var(--border);
-    border-radius:6px;
-    font-size:14px;
+    width:150px;
+    padding:9px 20px;
+    border:1px solid transparent;
+    background:var(--surface);
+    color:var(--ivory);
+    border-radius:32px;
+    font-family:inherit;font-size:16px;font-weight:420;
     text-align:left;
+    font-variant-numeric:tabular-nums;
   }
+  .row input[type=number]:focus{outline:none;border-color:var(--cobalt);}
+  .row input::placeholder{color:var(--slate);}
   .row .del{
-    background:none;
-    color:#b0b6c0;
-    font-size:16px;
-    padding:2px 6px;
+    width:32px;height:32px;padding:0;
+    display:inline-flex;align-items:center;justify-content:center;
+    color:var(--slate);font-size:14px;border-radius:50%;
+    flex-shrink:0;
   }
-  .row .del:hover{color:var(--danger);}
-  .row.locked input[type=text]{color:var(--muted);}
+  .row .del:hover{color:var(--bad);background:var(--surface);}
+  .row.locked input[type=text]{color:var(--ash);}
+  .row.locked .del{visibility:hidden;}
 
-  .total-line{
-    display:flex;justify-content:space-between;
-    padding-top:12px;margin-top:6px;
-    border-top:2px solid #eef1f6;
-    font-weight:700;font-size:14.5px;
+  .card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;}
+  .subtotal{font-size:14px;color:var(--ash);font-variant-numeric:tabular-nums;}
+  .subtotal b{color:var(--ivory);font-weight:480;}
+
+  .total-bar{
+    display:flex;justify-content:space-between;align-items:center;
+    background:var(--card);border-radius:12px;
+    padding:24px 32px;margin-top:12px;
+    font-size:18px;font-weight:480;
   }
-  .add-row-btn{margin-top:10px;}
+  .total-bar .amt{font-size:28px;letter-spacing:0.42px;font-variant-numeric:tabular-nums;}
 
+  /* ---------- Stats ---------- */
   .stat-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(200px,1fr));
-    gap:14px;
-    margin-bottom:16px;
+    grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+    gap:12px;margin-bottom:12px;
   }
-  .stat-card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:16px 18px;
-    box-shadow:var(--shadow);
-  }
-  .stat-card .label{font-size:12.5px;color:var(--muted);margin-bottom:6px;}
-  .stat-card .value{font-size:22px;font-weight:700;}
-  .stat-card .sub{font-size:12px;color:var(--muted);margin-top:4px;}
-  .pos{color:var(--income);}
-  .neg{color:var(--danger);}
+  .stat-card{background:var(--card);border-radius:12px;padding:32px;}
+  .stat-card .label{font-size:14px;color:var(--ash);margin-bottom:12px;line-height:1.35;}
+  .stat-card .value{font-size:32px;line-height:1.15;letter-spacing:0.48px;font-weight:480;font-variant-numeric:tabular-nums;}
+  .pos{color:var(--good);}
+  .neg{color:var(--bad);}
 
-  .legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;font-size:12.5px;}
-  .legend-item{display:flex;align-items:center;gap:6px;}
-  .legend-swatch{width:11px;height:11px;border-radius:3px;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:16px;font-size:14px;color:var(--ash);}
+  .legend-item{display:flex;align-items:center;gap:8px;}
+  .legend-swatch{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 
   .advice-box{
-    background:#f8fafc;
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:14px 16px;
-    font-size:13.5px;
-    line-height:1.7;
+    background:var(--surface);
+    border-radius:12px;
+    padding:20px 24px;
+    font-size:16px;
+    line-height:1.6;
+    color:var(--ash);
+    border-inline-start:3px solid var(--slate);
   }
-  .advice-box b{color:var(--text);}
-  .advice-good{border-right:4px solid var(--income);}
-  .advice-warn{border-right:4px solid var(--special);}
-  .advice-bad{border-right:4px solid var(--danger);}
+  .advice-box b{color:var(--ivory);font-weight:480;}
+  .advice-good{border-inline-start-color:var(--good);}
+  .advice-warn{border-inline-start-color:var(--warn);}
+  .advice-bad{border-inline-start-color:var(--bad);}
 
-  select#monthSelect{min-width:130px;}
+  .empty-msg{color:var(--slate);font-size:14px;padding:12px 0;}
 
-  .empty-msg{color:var(--muted);font-size:13px;padding:10px 0;}
-
-  footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:30px;}
+  footer{
+    color:var(--slate);font-size:12px;letter-spacing:0.12px;font-weight:480;
+    margin-top:72px;padding-top:24px;border-top:1px solid var(--hairline);
+  }
 
   input[type=file]{display:none;}
 
   @media(max-width:640px){
-    .row input[type=number]{width:90px;}
-    body{padding:14px;}
+    .page{padding:32px 16px 32px;}
+    h1{font-size:28px;letter-spacing:0.42px;}
+    .subtitle{margin-bottom:24px;}
+    .topbar{border-radius:20px;position:static;}
+    .card{padding:20px;}
+    .row input[type=number]{width:110px;padding:9px 14px;}
+    .row input[type=text]{padding:9px 8px;}
+    .grid-2{grid-template-columns:1fr;}
+    .total-bar{padding:20px;}
+    .stat-card{padding:24px;}
   }
 </style>
 </head>
 <body>
+<div class="page">
 
-<h1>💰 ניהול תקציב חודשי</h1>
+<div class="eyebrow">תקציב אישי</div>
+<h1>ניהול תקציב חודשי</h1>
 <div class="subtitle">כל הנתונים נשמרים באופן פרטי ומקומי בדפדפן שלך בלבד</div>
 
 <div class="topbar">
-  <label for="monthSelect">חודש:</label>
+  <label for="monthSelect">חודש</label>
   <select id="monthSelect"></select>
-  <button class="ghost" id="newMonthBtn">+ חודש חדש</button>
-  <button class="danger" id="deleteMonthBtn">מחק חודש</button>
+  <button class="primary" id="newMonthBtn">+ חודש חדש</button>
+  <button class="danger-text" id="deleteMonthBtn">מחק חודש</button>
   <div class="spacer"></div>
-  <button class="ghost" id="exportBtn">⬇ גיבוי (ייצוא)</button>
-  <button class="ghost" id="importBtn">⬆ שחזור (ייבוא)</button>
+  <button class="ghost" id="exportBtn">גיבוי (ייצוא)</button>
+  <button class="ghost" id="importBtn">שחזור (ייבוא)</button>
   <input type="file" id="importFile" accept="application/json">
 </div>
 
 <div class="tabs">
   <div class="tab active" data-panel="income">הכנסות</div>
   <div class="tab" data-panel="fixed">הוצאות קבועות</div>
+  <div class="tab" data-panel="monthly">הוצאות חודשיות</div>
   <div class="tab" data-panel="special">הוצאות מיוחדות</div>
   <div class="tab" data-panel="savings">חיסכון</div>
-  <div class="tab" data-panel="stats">📊 סטטיסטיקה</div>
+  <div class="tab" data-panel="stats">סטטיסטיקה</div>
 </div>
 
 <!-- INCOME -->
 <div class="panel active" id="panel-income">
+  <div class="panel-head">
+    <h2>הכנסות</h2>
+    <p>מתאפס בכל חודש חדש — יש להזין מחדש כל חודש</p>
+  </div>
   <div class="card">
-    <h2><span class="dot" style="background:var(--income)"></span>משכורת קבועה</h2>
+    <h3>משכורת <span class="tag dynamic">משתנה כל חודש</span></h3>
     <div class="row locked">
       <input type="text" value="משכורת" disabled>
       <input type="number" id="salaryInput" placeholder="0">
+      <button class="del" tabindex="-1">✕</button>
     </div>
   </div>
   <div class="card">
-    <h2><span class="dot" style="background:var(--income)"></span>הכנסות נוספות</h2>
+    <h3>הכנסות נוספות <span class="tag dynamic">משתנה כל חודש</span></h3>
     <div id="extraIncomeRows"></div>
     <div class="empty-msg" id="extraIncomeEmpty">אין הכנסות נוספות החודש</div>
-    <button class="ghost add-row-btn" data-add="extraIncome">+ הוסף הכנסה</button>
-    <div class="total-line"><span>סה"כ הכנסות</span><span id="incomeTotal">₪0</span></div>
+    <div class="card-foot">
+      <button class="quiet" data-add="extraIncome">+ הוסף הכנסה</button>
+    </div>
   </div>
+  <div class="total-bar"><span>סה"כ הכנסות</span><span class="amt" id="incomeTotal">₪0</span></div>
 </div>
 
 <!-- FIXED -->
 <div class="panel" id="panel-fixed">
-  <div class="card">
-    <h2><span class="dot" style="background:var(--fixed)"></span>הוצאות קבועות (שכ"ד, ארנונה, מנויים וכו')</h2>
-    <div id="fixedRows"></div>
-    <div class="empty-msg" id="fixedEmpty">אין הוצאות קבועות עדיין</div>
-    <button class="ghost add-row-btn" data-add="fixedExpenses">+ הוסף הוצאה קבועה</button>
-    <div class="total-line"><span>סה"כ הוצאות קבועות</span><span id="fixedTotal">₪0</span></div>
+  <div class="panel-head">
+    <h2>הוצאות קבועות</h2>
+    <p>סכומים קבועים עוברים אוטומטית לחודש הבא</p>
   </div>
+  <div class="grid-2" id="fixedGroups"></div>
+  <div class="total-bar"><span>סה"כ הוצאות קבועות</span><span class="amt" id="fixedTotal">₪0</span></div>
+</div>
+
+<!-- MONTHLY -->
+<div class="panel" id="panel-monthly">
+  <div class="panel-head">
+    <h2>הוצאות חודשיות</h2>
+    <p>הקטגוריות נשמרות, הסכומים מתאפסים בכל חודש חדש</p>
+  </div>
+  <div class="card">
+    <h3>הוצאות שוטפות <span class="tag dynamic">משתנה כל חודש</span></h3>
+    <div id="monthlyRows"></div>
+    <div class="empty-msg" id="monthlyEmpty">אין הוצאות חודשיות עדיין</div>
+    <div class="card-foot">
+      <button class="quiet" data-add="monthlyExpenses">+ הוסף הוצאה</button>
+    </div>
+  </div>
+  <div class="total-bar"><span>סה"כ הוצאות חודשיות</span><span class="amt" id="monthlyTotal">₪0</span></div>
 </div>
 
 <!-- SPECIAL -->
 <div class="panel" id="panel-special">
+  <div class="panel-head">
+    <h2>הוצאות מיוחדות</h2>
+    <p>מתנות, חופשה, חו"ל וכו'</p>
+  </div>
   <div class="card">
-    <h2><span class="dot" style="background:var(--special)"></span>הוצאות מיוחדות (מתנות, חופשה, חו"ל וכו')</h2>
     <div id="specialRows"></div>
     <div class="empty-msg" id="specialEmpty">אין הוצאות מיוחדות החודש</div>
-    <button class="ghost add-row-btn" data-add="specialExpenses">+ הוסף הוצאה מיוחדת</button>
-    <div class="total-line"><span>סה"כ הוצאות מיוחדות</span><span id="specialTotal">₪0</span></div>
+    <div class="card-foot">
+      <button class="quiet" data-add="specialExpenses">+ הוסף הוצאה מיוחדת</button>
+    </div>
   </div>
+  <div class="total-bar"><span>סה"כ הוצאות מיוחדות</span><span class="amt" id="specialTotal">₪0</span></div>
 </div>
 
 <!-- SAVINGS -->
 <div class="panel" id="panel-savings">
+  <div class="panel-head">
+    <h2>חיסכון</h2>
+    <p>הפרשות קבועות עוברות אוטומטית לחודש הבא</p>
+  </div>
   <div class="card">
-    <h2><span class="dot" style="background:var(--saving)"></span>חסכונות</h2>
     <div id="savingsRows"></div>
     <div class="empty-msg" id="savingsEmpty">אין חסכונות החודש</div>
-    <button class="ghost add-row-btn" data-add="savings">+ הוסף חיסכון</button>
-    <div class="total-line"><span>סה"כ חיסכון</span><span id="savingsTotal">₪0</span></div>
+    <div class="card-foot">
+      <button class="quiet" data-add="savings">+ הוסף חיסכון</button>
+    </div>
   </div>
+  <div class="total-bar"><span>סה"כ חיסכון</span><span class="amt" id="savingsTotal">₪0</span></div>
 </div>
 
 <!-- STATS -->
 <div class="panel" id="panel-stats">
+  <div class="panel-head">
+    <h2>סטטיסטיקה</h2>
+  </div>
 
   <div class="stat-grid">
     <div class="stat-card">
@@ -271,7 +364,7 @@
       <div class="value" id="statIncome">₪0</div>
     </div>
     <div class="stat-card">
-      <div class="label">סה"כ הוצאות (קבועות + מיוחדות)</div>
+      <div class="label">סה"כ הוצאות (קבועות + חודשיות + מיוחדות)</div>
       <div class="value" id="statExpenses">₪0</div>
     </div>
     <div class="stat-card">
@@ -285,60 +378,121 @@
   </div>
 
   <div class="card">
-    <h2>מצב חיסכון חודשי</h2>
+    <h3>מצב חיסכון חודשי</h3>
     <div id="savingStatusAdvice" class="advice-box"></div>
   </div>
 
   <div class="card">
-    <h2>פילוח הוצאות לפי קטגוריה</h2>
-    <div id="pieChartWrap" style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+    <h3>פילוח הוצאות לפי קטגוריה</h3>
+    <div id="pieChartWrap" style="display:flex;gap:32px;flex-wrap:wrap;align-items:center;">
       <svg id="pieChart" width="220" height="220" viewBox="0 0 220 220"></svg>
-      <div class="legend" id="pieLegend" style="flex:1;min-width:200px;"></div>
+      <div class="legend" id="pieLegend" style="flex:1;min-width:200px;flex-direction:column;"></div>
     </div>
   </div>
 
   <div class="card">
-    <h2>מגמות לאורך זמן</h2>
+    <h3>מגמות לאורך זמן</h3>
     <svg id="trendChart" width="100%" height="240" viewBox="0 0 700 240" preserveAspectRatio="none"></svg>
     <div class="legend">
-      <div class="legend-item"><span class="legend-swatch" style="background:var(--income)"></span>הכנסות</div>
-      <div class="legend-item"><span class="legend-swatch" style="background:var(--danger)"></span>הוצאות</div>
-      <div class="legend-item"><span class="legend-swatch" style="background:var(--saving)"></span>אחוז חיסכון</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--ivory)"></span>הכנסות</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--bad)"></span>הוצאות</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--cobalt)"></span>אחוז חיסכון</div>
     </div>
   </div>
 
   <div class="card">
-    <h2>המלצת חלוקת שכר (כלל 50/30/20)</h2>
+    <h3>המלצת חלוקת שכר (כלל 50/30/20)</h3>
     <div id="ruleChart"></div>
-    <div class="advice-box" id="ruleAdvice" style="margin-top:14px;"></div>
+    <div class="advice-box" id="ruleAdvice" style="margin-top:16px;"></div>
   </div>
 
 </div>
 
 <footer>הנתונים נשמרים ב-localStorage של הדפדפן במחשב זה בלבד. מומלץ לבצע גיבוי מעת לעת.</footer>
+</div>
 
 <script>
 const STORAGE_KEY = "budgetAppData_v1";
-const DEFAULT_FIXED_CATEGORIES = [
-  "שכר דירה","ארנונה","ועד בית / תשלומי דירה","חשמל / מים / גז",
-  "תקשורת (סלולר/אינטרנט)","שופינג","טיפוח","מסעדות",
-  "העברות בנקאיות","משלוחים","מנויים","ביטוחים"
+const DATA_VERSION = 2;
+
+// carry:true  → amount is copied to the next month
+// carry:false → only the category names are copied, amounts reset to 0
+const FIXED_GROUPS = [
+  { key:"housing",   title:"דיור",            items:["שכר דירה","ארנונה","ועד בית"], carry:true },
+  { key:"utilities", title:"תשלומים נוספים", items:["מים","חשמל","אינטרנט"],        carry:false },
+  { key:"subs",      title:"מנויים",          items:["נטפליקס","מוזיקה"],           carry:true },
+  { key:"insurance", title:"ביטוחים",         items:["ביטוחים"],                    carry:true },
 ];
+const DEFAULT_MONTHLY_CATEGORIES = ["שופינג ומסעדות","משלוחים","העברות בנקאיות","דלק"];
+
+// how rows from the old (v1) single fixed-expense list map into the new structure
+const LEGACY_FIXED_MAP = {
+  "שכר דירה":               { to:"fixed",   name:"שכר דירה" },
+  "ארנונה":                 { to:"fixed",   name:"ארנונה" },
+  "ועד בית / תשלומי דירה":  { to:"fixed",   name:"ועד בית" },
+  "חשמל / מים / גז":        { to:"fixed",   group:"utilities" },
+  "תקשורת (סלולר/אינטרנט)": { to:"fixed",   name:"אינטרנט" },
+  "מנויים":                 { to:"fixed",   group:"subs" },
+  "ביטוחים":                { to:"fixed",   name:"ביטוחים" },
+  "שופינג":                 { to:"monthly", name:"שופינג ומסעדות" },
+  "מסעדות":                 { to:"monthly", name:"שופינג ומסעדות" },
+  "משלוחים":                { to:"monthly", name:"משלוחים" },
+  "העברות בנקאיות":         { to:"monthly", name:"העברות בנקאיות" },
+  "טיפוח":                  { to:"monthly" },
+};
 
 function uid(){ return Math.random().toString(36).slice(2,10); }
+
+function templateFixed(){
+  const rows = [];
+  FIXED_GROUPS.forEach(g=>g.items.forEach(name=>rows.push({id:uid(), name, amount:0, group:g.key})));
+  return rows;
+}
+function templateMonthly(){
+  return DEFAULT_MONTHLY_CATEGORIES.map(name=>({id:uid(), name, amount:0}));
+}
+function groupOf(key){ return FIXED_GROUPS.find(g=>g.key===key) || FIXED_GROUPS[0]; }
 
 function loadData(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw) return JSON.parse(raw);
   }catch(e){}
-  return { months: {} };
+  return { version:DATA_VERSION, months: {} };
 }
 function saveData(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
+// Convert v1 months (flat fixedExpenses list, no monthlyExpenses) to the v2 structure.
+function migrate(){
+  if((data.version||1) >= DATA_VERSION) return;
+  Object.values(data.months).forEach(m=>{
+    const fixed = templateFixed();
+    const monthly = templateMonthly();
+    const addTo = (arr, name, amt)=>{ const r = arr.find(x=>x.name===name); r.amount = (r.amount||0) + amt; };
+    (m.fixedExpenses||[]).forEach(r=>{
+      const amt = r.amount||0;
+      const map = LEGACY_FIXED_MAP[r.name];
+      const target = map && map.to==="monthly" ? monthly : fixed;
+      if(map && map.name){
+        addTo(target, map.name, amt);
+      } else if(map){
+        if(amt>0) target.push({id:uid(), name:r.name, amount:amt, group:map.group});
+      } else {
+        fixed.push({id:uid(), name:r.name, amount:amt, group:"housing"});
+      }
+    });
+    if(!m.monthlyExpenses) m.monthlyExpenses = [];
+    m.fixedExpenses = fixed;
+    m.monthlyExpenses = monthly.concat(m.monthlyExpenses);
+  });
+  data.version = DATA_VERSION;
+  saveData();
+}
+
 let data = loadData();
+migrate();
 
 function currentMonthKey(){
   const d = new Date();
@@ -352,21 +506,32 @@ function monthLabel(key){
 }
 
 function blankMonth(){
-  return { salary:0, extraIncome:[], fixedExpenses:[], specialExpenses:[], savings:[] };
+  return { salary:0, extraIncome:[], fixedExpenses:[], monthlyExpenses:[], specialExpenses:[], savings:[] };
 }
 
 function ensureMonth(key){
   if(!data.months[key]){
-    // find most recent previous month to copy fixed expenses + salary from
+    // find most recent previous month to carry categories from
     const keys = Object.keys(data.months).sort();
     const prevKey = keys.filter(k=>k<key).pop();
     const m = blankMonth();
     if(prevKey){
       const prev = data.months[prevKey];
-      m.salary = prev.salary;
-      m.fixedExpenses = prev.fixedExpenses.map(r=>({id:uid(), name:r.name, amount:r.amount}));
+      m.fixedExpenses = prev.fixedExpenses
+        .filter(r=>{
+          // drop old combined utility rows (e.g. "חשמל / מים / גז") left over from the v1 migration
+          const g = groupOf(r.group || "housing");
+          return g.carry || g.items.includes(r.name) || !(r.name in LEGACY_FIXED_MAP);
+        })
+        .map(r=>{
+          const group = r.group || "housing";
+          return {id:uid(), name:r.name, amount: groupOf(group).carry ? r.amount : 0, group};
+        });
+      m.monthlyExpenses = (prev.monthlyExpenses||[]).map(r=>({id:uid(), name:r.name, amount:0}));
+      m.savings = (prev.savings||[]).map(r=>({id:uid(), name:r.name, amount:r.amount}));
     } else {
-      m.fixedExpenses = DEFAULT_FIXED_CATEGORIES.map(name=>({id:uid(), name, amount:0}));
+      m.fixedExpenses = templateFixed();
+      m.monthlyExpenses = templateMonthly();
     }
     data.months[key] = m;
     saveData();
@@ -398,12 +563,16 @@ function fmt(n){
   return "₪" + n.toLocaleString("he-IL");
 }
 
-function renderRows(containerId, emptyId, list, placeholder){
+function sum(list){ return list.reduce((s,r)=>s+(r.amount||0),0); }
+
+// Renders the rows of `list` (optionally only those in `group`) into a container.
+function renderRows(containerId, emptyId, list, placeholder, group){
   const container = document.getElementById(containerId);
   const empty = document.getElementById(emptyId);
+  const items = group ? list.filter(r=>r.group===group) : list;
   container.innerHTML = "";
-  if(list.length===0){ empty.style.display="block"; } else { empty.style.display="none"; }
-  list.forEach(item=>{
+  empty.style.display = items.length===0 ? "block" : "none";
+  items.forEach(item=>{
     const row = document.createElement("div");
     row.className = "row";
     row.innerHTML = `
@@ -428,17 +597,36 @@ function escapeHtml(s){
   return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 
+function buildFixedGroups(){
+  const wrap = document.getElementById("fixedGroups");
+  wrap.innerHTML = FIXED_GROUPS.map(g=>`
+    <div class="card" style="margin-bottom:0">
+      <h3>${g.title} ${g.carry ? '<span class="tag">קבוע</span>' : '<span class="tag dynamic">משתנה כל חודש</span>'}</h3>
+      <div id="fixedRows-${g.key}"></div>
+      <div class="empty-msg" id="fixedEmpty-${g.key}">אין הוצאות בקטגוריה זו</div>
+      <div class="card-foot">
+        <button class="quiet" data-add="fixedExpenses" data-group="${g.key}">+ הוסף</button>
+        <span class="subtotal">סה"כ <b id="fixedSub-${g.key}">₪0</b></span>
+      </div>
+    </div>`).join("");
+}
+
 function recalcTotals(){
   const m = data.months[currentKey];
-  const incomeTotal = (m.salary||0) + m.extraIncome.reduce((s,r)=>s+(r.amount||0),0);
-  const fixedTotal = m.fixedExpenses.reduce((s,r)=>s+(r.amount||0),0);
-  const specialTotal = m.specialExpenses.reduce((s,r)=>s+(r.amount||0),0);
-  const savingsTotal = m.savings.reduce((s,r)=>s+(r.amount||0),0);
+  const incomeTotal = (m.salary||0) + sum(m.extraIncome);
+  const fixedTotal = sum(m.fixedExpenses);
+  const monthlyTotal = sum(m.monthlyExpenses);
+  const specialTotal = sum(m.specialExpenses);
+  const savingsTotal = sum(m.savings);
   document.getElementById("incomeTotal").textContent = fmt(incomeTotal);
   document.getElementById("fixedTotal").textContent = fmt(fixedTotal);
+  document.getElementById("monthlyTotal").textContent = fmt(monthlyTotal);
   document.getElementById("specialTotal").textContent = fmt(specialTotal);
   document.getElementById("savingsTotal").textContent = fmt(savingsTotal);
-  return {incomeTotal, fixedTotal, specialTotal, savingsTotal};
+  FIXED_GROUPS.forEach(g=>{
+    document.getElementById("fixedSub-"+g.key).textContent = fmt(sum(m.fixedExpenses.filter(r=>r.group===g.key)));
+  });
+  return {incomeTotal, fixedTotal, monthlyTotal, specialTotal, savingsTotal};
 }
 
 function renderIncomeTab(){
@@ -448,7 +636,13 @@ function renderIncomeTab(){
 }
 function renderFixedTab(){
   const m = data.months[currentKey];
-  renderRows("fixedRows","fixedEmpty", m.fixedExpenses, "שם ההוצאה");
+  FIXED_GROUPS.forEach(g=>{
+    renderRows("fixedRows-"+g.key, "fixedEmpty-"+g.key, m.fixedExpenses, "שם ההוצאה", g.key);
+  });
+}
+function renderMonthlyTab(){
+  const m = data.months[currentKey];
+  renderRows("monthlyRows","monthlyEmpty", m.monthlyExpenses, "שם ההוצאה");
 }
 function renderSpecialTab(){
   const m = data.months[currentKey];
@@ -463,6 +657,7 @@ function renderAll(){
   refreshMonthSelect();
   renderIncomeTab();
   renderFixedTab();
+  renderMonthlyTab();
   renderSpecialTab();
   renderSavingsTab();
   recalcTotals();
@@ -521,13 +716,15 @@ document.getElementById("salaryInput").addEventListener("input", (e)=>{
 });
 
 // ---------- Add row buttons ----------
+buildFixedGroups();
 document.querySelectorAll("[data-add]").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     const key = btn.dataset.add;
-    data.months[currentKey][key].push({id:uid(), name:"", amount:0});
+    const row = {id:uid(), name:"", amount:0};
+    if(btn.dataset.group) row.group = btn.dataset.group;
+    data.months[currentKey][key].push(row);
     saveData();
     renderAll();
-    // focus last added name input
   });
 });
 
@@ -557,6 +754,7 @@ document.getElementById("importFile").addEventListener("change", (e)=>{
       if(!parsed.months) throw new Error("קובץ לא תקין");
       if(!confirm("שחזור הגיבוי יחליף את כל הנתונים הקיימים. להמשיך?")) return;
       data = parsed;
+      migrate();
       saveData();
       const keys = sortedMonthKeys();
       currentKey = keys.length ? keys[keys.length-1] : currentMonthKey();
@@ -572,11 +770,13 @@ document.getElementById("importFile").addEventListener("change", (e)=>{
 });
 
 // ================= STATISTICS =================
+const SVG_NS = "http://www.w3.org/2000/svg";
+
 function renderStats(){
   const m = data.months[currentKey];
   const totals = recalcTotals();
   const income = totals.incomeTotal;
-  const expenses = totals.fixedTotal + totals.specialTotal;
+  const expenses = totals.fixedTotal + totals.monthlyTotal + totals.specialTotal;
   const savings = totals.savingsTotal;
   const leftover = income - expenses - savings;
 
@@ -595,7 +795,7 @@ function renderStats(){
     cls="advice-warn"; msg="עדיין לא הוזנה הכנסה לחודש זה.";
   } else if(leftover<0){
     cls="advice-bad";
-    msg = `החודש את/ה <b>ב-${fmt(Math.abs(leftover))} מינוס</b> ביחס להכנסה. ההוצאות (כולל חיסכון) גבוהות מההכנסה. כדאי לבדוק אילו הוצאות קבועות או מיוחדות ניתן לצמצם.`;
+    msg = `החודש את/ה <b>ב-${fmt(Math.abs(leftover))} מינוס</b> ביחס להכנסה. ההוצאות (כולל חיסכון) גבוהות מההכנסה. כדאי לבדוק אילו הוצאות קבועות, חודשיות או מיוחדות ניתן לצמצם.`;
   } else if(savingsRate>=20){
     cls="advice-good";
     msg = `מצוין! את/ה חוסכ/ת כ-<b>${savingsRate.toFixed(0)}%</b> מההכנסה החודש (${fmt(savings+leftover)}). זהו קצב חיסכון בריא מאוד.`;
@@ -611,14 +811,14 @@ function renderStats(){
 
   renderPieChart(m);
   renderTrendChart();
-  renderRuleChart(income, totals.fixedTotal, totals.specialTotal, savings);
+  renderRuleChart(income, totals.fixedTotal, totals.monthlyTotal + totals.specialTotal, savings);
 }
 
 function renderPieChart(m){
   const categories = [];
-  m.fixedExpenses.forEach(r=>{ if(r.amount>0) categories.push({name:r.name||"(ללא שם)", amount:r.amount, color:"var(--fixed)", hex:"#2563eb"}); });
-  m.specialExpenses.forEach(r=>{ if(r.amount>0) categories.push({name:r.name||"(ללא שם)", amount:r.amount, color:"var(--special)", hex:"#d97706"}); });
-  m.savings.forEach(r=>{ if(r.amount>0) categories.push({name:r.name||"(ללא שם)", amount:r.amount, color:"var(--saving)", hex:"#7c3aed"}); });
+  [m.fixedExpenses, m.monthlyExpenses, m.specialExpenses, m.savings].forEach(list=>{
+    list.forEach(r=>{ if(r.amount>0) categories.push({name:r.name||"(ללא שם)", amount:r.amount}); });
+  });
 
   const svg = document.getElementById("pieChart");
   const legend = document.getElementById("pieLegend");
@@ -632,26 +832,30 @@ function renderPieChart(m){
   }
   categories.sort((a,b)=>b.amount-a.amount);
 
-  const cx=110, cy=110, r=95;
+  const cx=110, cy=110, r=100;
   let angleStart = -90;
-  const palette = ["#2563eb","#3b82f6","#60a5fa","#d97706","#f59e0b","#fbbf24","#7c3aed","#a78bfa","#c4b5fd","#16a34a","#dc2626","#0891b2"];
+  const palette = ["#5266eb","#8a98f2","#ededf3","#3a4bc4","#b9c1f7","#9a9aa8","#6f7fee","#c3c3cc","#2b3793","#70707d","#d4d9fb","#4e4e5c"];
   categories.forEach((c,i)=>{
     const pct = c.amount/total;
     const angleEnd = angleStart + pct*360;
-    const path = describeArc(cx,cy,r,angleStart,angleEnd);
-    const el = document.createElementNS("http://www.w3.org/2000/svg","path");
-    el.setAttribute("d", path);
+    const el = document.createElementNS(SVG_NS,"path");
+    el.setAttribute("d", describeArc(cx,cy,r,angleStart,angleEnd));
     el.setAttribute("fill", palette[i%palette.length]);
-    el.setAttribute("stroke","#fff");
+    el.setAttribute("stroke","#1e1e2a");
     el.setAttribute("stroke-width","2");
     svg.appendChild(el);
     angleStart = angleEnd;
 
     const li = document.createElement("div");
     li.className = "legend-item";
-    li.innerHTML = `<span class="legend-swatch" style="background:${palette[i%palette.length]}"></span>${escapeHtml(c.name)} — ${fmt(c.amount)} (${(pct*100).toFixed(0)}%)`;
+    li.innerHTML = `<span class="legend-swatch" style="background:${palette[i%palette.length]}"></span><span style="color:var(--ivory)">${escapeHtml(c.name)}</span> — ${fmt(c.amount)} (${(pct*100).toFixed(0)}%)`;
     legend.appendChild(li);
   });
+  // donut hole
+  const hole = document.createElementNS(SVG_NS,"circle");
+  hole.setAttribute("cx",cx); hole.setAttribute("cy",cy); hole.setAttribute("r",58);
+  hole.setAttribute("fill","#1e1e2a");
+  svg.appendChild(hole);
 }
 
 function polarToCartesian(cx,cy,r,angleDeg){
@@ -674,9 +878,9 @@ function renderTrendChart(){
 
   const points = keys.map(k=>{
     const m = data.months[k];
-    const income = (m.salary||0) + m.extraIncome.reduce((s,r)=>s+(r.amount||0),0);
-    const expenses = m.fixedExpenses.reduce((s,r)=>s+(r.amount||0),0) + m.specialExpenses.reduce((s,r)=>s+(r.amount||0),0);
-    const savings = m.savings.reduce((s,r)=>s+(r.amount||0),0);
+    const income = (m.salary||0) + sum(m.extraIncome);
+    const expenses = sum(m.fixedExpenses) + sum(m.monthlyExpenses||[]) + sum(m.specialExpenses);
+    const savings = sum(m.savings);
     const leftover = income-expenses-savings;
     const rate = income>0 ? Math.max(0,Math.min(100,(savings+leftover)/income*100)) : 0;
     return { key:k, income, expenses, rate };
@@ -692,10 +896,11 @@ function renderTrendChart(){
   function yAtPct(p){ return H-padB - (p/100)*(H-padT-padB); }
 
   // axis line
-  const axis = document.createElementNS("http://www.w3.org/2000/svg","line");
+  const axis = document.createElementNS(SVG_NS,"line");
   axis.setAttribute("x1",padL); axis.setAttribute("y1",H-padB);
   axis.setAttribute("x2",W-padR); axis.setAttribute("y2",H-padB);
-  axis.setAttribute("stroke","#e2e6ec");
+  axis.setAttribute("stroke","#70707d");
+  axis.setAttribute("stroke-opacity","0.5");
   svg.appendChild(axis);
 
   function drawLine(vals, color, mapper){
@@ -704,37 +909,39 @@ function renderTrendChart(){
       const x = xAt(i), y = mapper(vals(p));
       d += (i===0?"M":"L") + x + " " + y + " ";
     });
-    const el = document.createElementNS("http://www.w3.org/2000/svg","path");
+    const el = document.createElementNS(SVG_NS,"path");
     el.setAttribute("d", d.trim());
     el.setAttribute("fill","none");
     el.setAttribute("stroke", color);
-    el.setAttribute("stroke-width","2.5");
+    el.setAttribute("stroke-width","2");
+    el.setAttribute("vector-effect","non-scaling-stroke");
     svg.appendChild(el);
     points.forEach((p,i)=>{
       const x = xAt(i), y = mapper(vals(p));
-      const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
+      const c = document.createElementNS(SVG_NS,"circle");
       c.setAttribute("cx",x); c.setAttribute("cy",y); c.setAttribute("r","3.5");
       c.setAttribute("fill",color);
       svg.appendChild(c);
     });
   }
 
-  drawLine(p=>p.income, "#16a34a", yAtVal);
-  drawLine(p=>p.expenses, "#dc2626", yAtVal);
-  drawLine(p=>p.rate, "#7c3aed", yAtPct);
+  drawLine(p=>p.income, "#ededf3", yAtVal);
+  drawLine(p=>p.expenses, "#e07a7a", yAtVal);
+  drawLine(p=>p.rate, "#5266eb", yAtPct);
 
   points.forEach((p,i)=>{
     const x = xAt(i);
-    const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+    const t = document.createElementNS(SVG_NS,"text");
     t.setAttribute("x",x); t.setAttribute("y",H-8);
-    t.setAttribute("font-size","10"); t.setAttribute("fill","#6b7280");
+    t.setAttribute("font-size","11"); t.setAttribute("fill","#c3c3cc");
+    t.setAttribute("font-family","Inter, Heebo, sans-serif");
     t.setAttribute("text-anchor","middle");
     t.textContent = monthLabel(p.key).split(" ")[0].slice(0,3)+"'"+p.key.slice(2,4);
     svg.appendChild(t);
   });
 }
 
-function renderRuleChart(income, fixed, special, savings){
+function renderRuleChart(income, needs, wants, savings){
   const box = document.getElementById("ruleChart");
   const advice = document.getElementById("ruleAdvice");
   if(income<=0){
@@ -743,33 +950,33 @@ function renderRuleChart(income, fixed, special, savings){
     advice.innerHTML = "יש להזין הכנסה כדי לקבל המלצת חלוקת שכר.";
     return;
   }
-  const needsPct = fixed/income*100;
-  const wantsPct = special/income*100;
+  const needsPct = needs/income*100;
+  const wantsPct = wants/income*100;
   const savePct = savings/income*100;
 
   function bar(labelActual, actualPct, targetPct, color){
     return `
-    <div style="margin-bottom:14px;">
-      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;">
-        <span>${labelActual}</span>
-        <span>${actualPct.toFixed(0)}% בפועל &nbsp;|&nbsp; יעד ${targetPct}%</span>
+    <div style="margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;gap:12px;font-size:14px;margin-bottom:8px;color:var(--ash);">
+        <span style="color:var(--ivory)">${labelActual}</span>
+        <span>${actualPct.toFixed(0)}% בפועל &nbsp;·&nbsp; יעד ${targetPct}%</span>
       </div>
-      <div style="position:relative;height:16px;background:#eef1f6;border-radius:8px;overflow:hidden;">
-        <div style="position:absolute;right:0;top:0;height:100%;width:${Math.min(100,actualPct)}%;background:${color};"></div>
-        <div style="position:absolute;top:0;right:${targetPct}%;height:100%;border-right:2px dashed #333;"></div>
+      <div style="position:relative;height:12px;background:var(--surface);border-radius:40px;overflow:hidden;">
+        <div style="position:absolute;right:0;top:0;height:100%;width:${Math.min(100,actualPct)}%;background:${color};border-radius:40px;"></div>
+        <div style="position:absolute;top:0;right:${targetPct}%;height:100%;border-right:2px dashed var(--ivory);opacity:.7;"></div>
       </div>
     </div>`;
   }
 
   box.innerHTML =
-    bar("צרכים קבועים (הוצאות קבועות)", needsPct, 50, "#2563eb") +
-    bar("רצונות (הוצאות מיוחדות)", wantsPct, 30, "#d97706") +
-    bar("חיסכון", savePct, 20, "#7c3aed");
+    bar("צרכים (הוצאות קבועות)", needsPct, 50, "#5266eb") +
+    bar("רצונות (הוצאות חודשיות + מיוחדות)", wantsPct, 30, "#8a98f2") +
+    bar("חיסכון", savePct, 20, "#ededf3");
 
   let notes = [];
   if(needsPct>55) notes.push(`ההוצאות הקבועות מהוות <b>${needsPct.toFixed(0)}%</b> מההכנסה — גבוה מהיעד המומלץ (50%). כדאי לבדוק אפשרויות כמו הוזלת שכירות, מיחזור מנויים או תשלומי ביטוח.`);
   if(savePct<15) notes.push(`שיעור החיסכון עומד על <b>${savePct.toFixed(0)}%</b> בלבד. כדי להתקרב ל-20% המומלץ, אפשר לנסות להעביר סכום קבוע לחיסכון בתחילת החודש ("שלמי לעצמך קודם").`);
-  if(wantsPct>35) notes.push(`ההוצאות המיוחדות (${wantsPct.toFixed(0)}%) גבוהות מהמומלץ (30%) — ייתכן שזה חודש חריג (חופשה/אירוע), אך אם זה קורה כל חודש כדאי לתקצב אותן מראש.`);
+  if(wantsPct>35) notes.push(`ההוצאות החודשיות והמיוחדות (${wantsPct.toFixed(0)}%) גבוהות מהמומלץ (30%) — ייתכן שזה חודש חריג (חופשה/אירוע), אך אם זה קורה כל חודש כדאי לתקצב אותן מראש.`);
   if(notes.length===0) notes.push("החלוקה שלך קרובה מאוד לכלל המומלץ 50/30/20 — כל הכבוד על האיזון!");
 
   advice.className = "advice-box " + (needsPct>55 || savePct<10 ? "advice-warn" : "advice-good");
